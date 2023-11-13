@@ -69,14 +69,17 @@ fun Juego(){
             painterResource(id = R.drawable.tapete),
             contentScale = ContentScale.FillBounds
         )) {
-        Baraja.creaBaraja()
-        Baraja.barajar()
+
         val context = LocalContext.current
+        var baraja by rememberSaveable { mutableStateOf(Baraja.creaBaraja()) }
         var carta by rememberSaveable { mutableStateOf("vuelta")}
         val (box1, box2) = createRefs()
         val topGuide = createGuidelineFromTop(0.6f)
-        val cartaNueva = darCarta(context)
-        val reinicio = reiniciarBaraja()
+        val cartaNueva = darCarta(context, baraja)
+        val reinicio = reiniciarBaraja(baraja)
+        var resto = baraja.size
+
+        Text(text = resto.toString())
 
         Box(
             modifier = Modifier
@@ -98,12 +101,16 @@ fun Juego(){
         ){
             Row {
                 MyButton(onClick = { carta = cartaNueva }, texto = "Dar carta")
-                MyButton(onClick = {carta = reinicio}, texto = "Reiniciar")
+                MyButton(onClick = {baraja = Baraja.creaBaraja()
+                    Baraja.barajar(baraja)
+                    carta = "vuelta"}, texto = "Reiniciar")
             }
         }
     }
     
 }
+
+
 
 @Composable
 fun MostrarCarta(
@@ -130,12 +137,12 @@ fun MyButton(
 }
 
 @Composable
-fun darCarta(context: Context): String {
-    return if (Baraja.baraja.isEmpty()) {
+fun darCarta(context: Context, baraja: MutableList<Carta>): String {
+    return if (baraja.isEmpty()) {
         Toast.makeText( context,"La baraja está vacía ", Toast.LENGTH_SHORT).show()
         "vuelta"
     } else {
-        val cartaDada = Baraja.dameCarta()
+        val cartaDada = Baraja.dameCarta(baraja)
         val nombre = cartaDada.nombre.toString().lowercase()
         val palo = cartaDada.palo.toString().lowercase()
         nombre+"_"+palo
@@ -143,8 +150,7 @@ fun darCarta(context: Context): String {
 }
 
 @Composable
-fun reiniciarBaraja(): String {
-    Baraja.creaBaraja()
-    Baraja.barajar()
+fun reiniciarBaraja(baraja: MutableList<Carta>): String {
+    Baraja.barajar(baraja)
     return "vuelta"
 }
