@@ -60,6 +60,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Función principal donde se incia el juego y realiza las acciones principales.
+ */
 @Preview(showBackground = true)
 @Composable
 fun Juego(){
@@ -72,13 +75,29 @@ fun Juego(){
 
         val context = LocalContext.current
         var baraja by rememberSaveable { mutableStateOf(Baraja.creaBaraja()) }
+        val mazo by rememberSaveable {mutableStateOf("vuelta")}
         var carta by rememberSaveable { mutableStateOf("vuelta")}
-        val (box1, box2) = createRefs()
+        val (box1, box2, box3) = createRefs()
         val topGuide = createGuidelineFromTop(0.6f)
+        var show  by rememberSaveable { mutableStateOf(true)}
 
         Box(
             modifier = Modifier
                 .constrainAs(box1){
+                    bottom.linkTo(topGuide)
+                    start.linkTo(parent.start)
+                }
+        ){
+            // Mientras se tru nos muestra el mazo y baraja las cartas.
+            if(show) {
+                MostrarCarta(mazo, context)
+                Baraja.barajar(baraja)
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .constrainAs(box2){
                     top.linkTo(topGuide)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
@@ -88,30 +107,41 @@ fun Juego(){
         }
         Box(
             modifier = Modifier.
-            constrainAs(box2){
-                top.linkTo(box1.bottom)
+            constrainAs(box3){
+                top.linkTo(box2.bottom)
                 start.linkTo(parent.start)
                 end.linkTo(parent.end)
             }
         ){
             Row {
-                MyButton(onClick = { carta = if (baraja.isEmpty()) {
+                // Al pulsarlo nos muestra la siguiente carta, si la baraja está vacia nos devuelve un mensaje
+                Button(onClick = { carta = if (baraja.isEmpty()) {
                     Toast.makeText( context,"La baraja está vacía ", Toast.LENGTH_SHORT).show()
+                    show = false
                     "vuelta"
                 } else {
                     val cartaDada = Baraja.dameCarta(baraja)
                     "${cartaDada.nombre}_${cartaDada.palo}".lowercase()
-                }}, texto = "Dar carta")
-                MyButton(onClick = {baraja = Baraja.creaBaraja()
-                    Baraja.barajar(baraja)
-                    carta = "vuelta"}, texto = "Reiniciar")
+                }}, modifier = Modifier.padding(3.dp)) {
+                    Text(text = "Dar carta")
+                }
+                // Al pulsarlo se baraja de nuevo y se pone el mazo de nuevo en la mesa.
+                Button(onClick = {baraja = Baraja.creaBaraja()
+                    show = true
+                    carta = "vuelta"}, modifier = Modifier.padding(3.dp)) {
+                    Text(text = "Reiniciar")
+                }
             }
         }
     }
     
 }
 
-
+/**
+ * Muestra la carta indicada
+ * @param carta Recibe un String con el nombre de la carta a mostrar.
+ * @param context Recibe el contexto.
+ */
 
 @Composable
 fun MostrarCarta(
@@ -124,17 +154,6 @@ fun MostrarCarta(
             .height(200.dp)
             .width(100.dp)
     )
-}
-
-@Composable
-fun MyButton(
-    onClick: ()-> Unit,
-    texto: String
-){
-    Button(onClick = { onClick() },
-        modifier = Modifier.padding(3.dp)) {
-        Text(text = texto)
-    }
 }
 
 

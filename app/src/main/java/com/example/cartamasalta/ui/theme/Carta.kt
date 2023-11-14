@@ -2,6 +2,9 @@ package com.example.cartamasalta.ui.theme
 
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * Clase para crear una carta francesa.
+ */
 class Carta(val nombre: Naipes, val palo: Palos) {
     var puntosMin: Int = 0
     var puntosMax: Int = 0
