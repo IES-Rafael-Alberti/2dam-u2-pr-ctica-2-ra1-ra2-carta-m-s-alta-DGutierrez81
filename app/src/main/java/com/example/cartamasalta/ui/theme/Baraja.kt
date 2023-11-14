@@ -16,7 +16,7 @@ class Baraja {
 
         fun barajar(baraja: MutableList<Carta>): Unit = baraja.shuffle()
 
-        fun dameCarta(baraja: MutableList<Carta>): Carta = baraja.removeLast()
+        fun dameCarta(baraja: MutableList<Carta>): Carta = baraja.removeAt(baraja.size - 1)
 
     }
 }

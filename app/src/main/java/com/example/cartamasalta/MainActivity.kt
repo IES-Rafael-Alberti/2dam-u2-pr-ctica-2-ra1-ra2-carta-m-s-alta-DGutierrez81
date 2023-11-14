@@ -75,11 +75,6 @@ fun Juego(){
         var carta by rememberSaveable { mutableStateOf("vuelta")}
         val (box1, box2) = createRefs()
         val topGuide = createGuidelineFromTop(0.6f)
-        val cartaNueva = darCarta(context, baraja)
-        val reinicio = reiniciarBaraja(baraja)
-        var resto = baraja.size
-
-        Text(text = resto.toString())
 
         Box(
             modifier = Modifier
@@ -100,7 +95,13 @@ fun Juego(){
             }
         ){
             Row {
-                MyButton(onClick = { carta = cartaNueva }, texto = "Dar carta")
+                MyButton(onClick = { carta = if (baraja.isEmpty()) {
+                    Toast.makeText( context,"La baraja está vacía ", Toast.LENGTH_SHORT).show()
+                    "vuelta"
+                } else {
+                    val cartaDada = Baraja.dameCarta(baraja)
+                    "${cartaDada.nombre}_${cartaDada.palo}".lowercase()
+                }}, texto = "Dar carta")
                 MyButton(onClick = {baraja = Baraja.creaBaraja()
                     Baraja.barajar(baraja)
                     carta = "vuelta"}, texto = "Reiniciar")
@@ -136,21 +137,5 @@ fun MyButton(
     }
 }
 
-@Composable
-fun darCarta(context: Context, baraja: MutableList<Carta>): String {
-    return if (baraja.isEmpty()) {
-        Toast.makeText( context,"La baraja está vacía ", Toast.LENGTH_SHORT).show()
-        "vuelta"
-    } else {
-        val cartaDada = Baraja.dameCarta(baraja)
-        val nombre = cartaDada.nombre.toString().lowercase()
-        val palo = cartaDada.palo.toString().lowercase()
-        nombre+"_"+palo
-    }
-}
 
-@Composable
-fun reiniciarBaraja(baraja: MutableList<Carta>): String {
-    Baraja.barajar(baraja)
-    return "vuelta"
-}
+
